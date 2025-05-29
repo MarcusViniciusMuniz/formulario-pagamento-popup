@@ -26,3 +26,4 @@ function fpp_load_textdomain() {
 add_action('plugins_loaded', 'fpp_load_textdomain');
 
 require_once FPP_PLUGIN_DIR . 'includes/asaas-api.php';
+require_once FPP_PLUGIN_DIR . 'includes/settings-page.php';
