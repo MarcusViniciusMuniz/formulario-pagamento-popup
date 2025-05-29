@@ -27,3 +27,9 @@ add_action('plugins_loaded', 'fpp_load_textdomain');
 
 require_once FPP_PLUGIN_DIR . 'includes/asaas-api.php';
 require_once FPP_PLUGIN_DIR . 'includes/settings-page.php';
+require_once FPP_PLUGIN_DIR . 'includes/widgets/fpp_widget_formulario.php';
+
+function fpp_register_formulario_widget($widgets_manager) {
+    $widgets_manager->register(new \FPP_Widget_Formulario());
+}
+add_action('elementor/widgets/register', 'fpp_register_formulario_widget');
