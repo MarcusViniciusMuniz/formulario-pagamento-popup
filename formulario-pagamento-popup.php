@@ -24,3 +24,5 @@ function fpp_load_textdomain() {
     load_plugin_textdomain('formulario-pagamento-popup', false, dirname(plugin_basename(__FILE__)) . '/languages');
 }
 add_action('plugins_loaded', 'fpp_load_textdomain');
+
+require_once FPP_PLUGIN_DIR . 'includes/asaas-api.php';
