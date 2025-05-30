@@ -1,32 +1,41 @@
 <?php
-if (!defined('ABSPATH')) exit;
+// Impede acesso direto ao arquivo
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 /**
- * Cria uma cobrança na API Asaas
+ * Cria uma cobrança na API Asaas.
  *
- * @param array $cliente — ['nome', 'email', 'telefone']
- * @param string $valor
- * @param string $metodo
- * @param string $chave_api
- * @return array ['success' => bool, 'url' => string, 'erro' => string]
+ * @param array  $cliente       ['nome', 'email', 'telefone']
+ * @param string $valor         Valor da cobrança (ex: "10.00")
+ * @param string $metodo        Método de pagamento ("PIX", "BOLETO", "CREDIT_CARD")
+ * @param string $chave_api     Chave da API Asaas
+ * @return array                Retorna ['success' => true, 'url' => ..., 'id' => ...] OU ['erro' => ...]
  */
 function fpp_criar_cobranca($cliente, $valor, $metodo, $chave_api) {
     if (empty($chave_api)) {
         return ['erro' => 'Chave da API não configurada.'];
     }
 
-    $telefone_limpo = preg_replace('/\D/', '', $cliente['telefone']);
+    if (empty($cliente['nome']) || empty($cliente['email']) || empty($cliente['telefone'])) {
+        return ['erro' => 'Dados do cliente incompletos.'];
+    }
+
+    $metodo_pagamento = $metodo ?: 'PIX';
+    $valor_cobranca = $valor ?: '10.00';
+    $telefone_limpo = preg_replace('/\D/', '', $cliente['telefone']); // apenas números
 
     $data = [
-        'billingType' => $metodo ?: 'PIX',
-        'value'       => $valor ?: '10.00',
+        'billingType' => $metodo_pagamento,
+        'value'       => $valor_cobranca,
         'dueDate'     => date('Y-m-d'),
-        'description' => 'Pagamento gerado via formulário',
+        'description' => 'Pagamento via formulário FPP',
         'customer'    => [
             'name'  => $cliente['nome'],
             'email' => $cliente['email'],
-            'phone' => $telefone_limpo,
-        ],
+            'phone' => $telefone_limpo
+        ]
     ];
 
     $url = 'https://www.asaas.com/api/v3/payments';
@@ -45,6 +54,7 @@ function fpp_criar_cobranca($cliente, $valor, $metodo, $chave_api) {
     if (curl_errno($ch)) {
         $erro_curl = curl_error($ch);
         curl_close($ch);
+        error_log('[FPP Plugin] Erro cURL: ' . $erro_curl); // 🟢 log no debug.log
         return ['erro' => 'Erro cURL: ' . $erro_curl];
     }
 
@@ -52,16 +62,25 @@ function fpp_criar_cobranca($cliente, $valor, $metodo, $chave_api) {
     $resposta_decodificada = json_decode($resposta, true);
 
     if (isset($resposta_decodificada['errors'])) {
-        return ['erro' => $resposta_decodificada['errors'][0]['description']];
+        $descricao_erro = $resposta_decodificada['errors'][0]['description'];
+        error_log('[FPP Plugin] Erro API Asaas: ' . $descricao_erro);
+        return ['erro' => $descricao_erro];
     }
 
     if (isset($resposta_decodificada['error'])) {
-        return ['erro' => $resposta_decodificada['error']];
+        $descricao_erro = $resposta_decodificada['error'];
+        error_log('[FPP Plugin] Erro API Asaas: ' . $descricao_erro);
+        return ['erro' => $descricao_erro];
+    }
+
+    if (empty($resposta_decodificada['invoiceUrl'])) {
+        error_log('[FPP Plugin] Erro: link de pagamento não retornado.');
+        return ['erro' => 'Erro: link de pagamento não gerado.'];
     }
 
     return [
         'success' => true,
-        'url'     => $resposta_decodificada['invoiceUrl'] ?? '',
-        'id'      => $resposta_decodificada['id'] ?? null,
+        'url'     => $resposta_decodificada['invoiceUrl'],
+        'id'      => $resposta_decodificada['id'] ?? null
     ];
 }

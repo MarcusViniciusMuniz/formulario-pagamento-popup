@@ -1,0 +1,100 @@
+/* Arquivo: assets/css/style.css */
+
+/* 🟢 Fundo escuro do overlay */
+.fpp-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+/* 🟢 Caixa branca do formulário */
+.fpp-popup {
+  background: #fff;
+  padding: 2rem;
+  max-width: 400px;
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  animation: fppFadeIn 0.3s ease-out;
+  position: relative;
+  background-size: cover; /* permite imagem de fundo */
+  background-position: center;
+}
+
+/* 🟢 Animação de entrada */
+@keyframes fppFadeIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 🟢 Título */
+.fpp-popup h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.6rem;
+  text-align: center;
+  color: #333;
+}
+
+/* 🟢 Campos */
+.fpp-popup input,
+.fpp-popup button,
+.fpp-popup textarea {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.fpp-popup input:focus,
+.fpp-popup textarea:focus {
+  border-color: #0073aa;
+  outline: none;
+}
+
+/* 🟢 Botão */
+.fpp-popup button {
+  background: #0073aa;
+  color: #fff;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.fpp-popup button:hover {
+  background: #005177;
+}
+
+/* 🟢 Mensagem abaixo do botão */
+.fpp-mensagem {
+  text-align: center;
+  font-size: 14px;
+  color: #333;
+  min-height: 1.2rem;
+}
+
+/* 🟢 Customização adicional (opcional) */
+.fpp-popup.custom-background {
+  background-color: transparent;
+  background-blend-mode: overlay;
+}
